@@ -30,5 +30,5 @@ def extract_medicines_from_image(image_path: str):
     return medicines_found
 
 if __name__ == "__main__":
-    meds = extract_medicines_from_image("test-docs/hospital.pdf")
+    meds = extract_medicines_from_image("test-docs/sindh-scanned-list.pdf")
     print("Extracted Medicines:", meds)
