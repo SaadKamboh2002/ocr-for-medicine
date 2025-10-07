@@ -1,6 +1,6 @@
 
 from openai import OpenAI
-from ocr import read_image_and_extract_text
+from pdf_ocr import read_image_and_extract_text
 from dotenv import load_dotenv
 import os
 
@@ -30,5 +30,5 @@ def extract_medicines_from_image(image_path: str):
     return medicines_found
 
 if __name__ == "__main__":
-    meds = extract_medicines_from_image("test-docs/test2.png")
+    meds = extract_medicines_from_image("test-docs/hospital.pdf")
     print("Extracted Medicines:", meds)
