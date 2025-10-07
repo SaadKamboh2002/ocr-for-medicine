@@ -28,3 +28,7 @@ def extract_medicines_from_image(image_path: str):
     medicines_found = response.choices[0].message.content
     print(medicines_found)
     return medicines_found
+
+if __name__ == "__main__":
+    meds = extract_medicines_from_image("test-docs/test2.png")
+    print("Extracted Medicines:", meds)

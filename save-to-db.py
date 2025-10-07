@@ -12,9 +12,7 @@ db = client["admin"]
 users_collection = db["meds"]
 
 def get_available_users():
-    """Retrieve all unique users from the database"""
     try:
-        # Get all unique user names from the database
         users = users_collection.distinct("Name")
         return users
     except Exception as e:
@@ -22,7 +20,6 @@ def get_available_users():
         return []
 
 def select_user():
-    """Display available users and let user select one"""
     users = get_available_users()
     
     if not users:
@@ -128,8 +125,8 @@ def save_medicines_to_user(user_name, medicines_text, image_path):
         print(f"Error saving medicines: {e}")
         return False
 
+# main function that extracts the meds and saves to db
 def process_medicine_extraction(image_path):
-    """Main workflow: extract medicines -> select user -> save to database"""
     print(f"Extracting medicines from image: {image_path}")
     
     # Extract medicines from image
@@ -163,5 +160,6 @@ def process_medicine_extraction(image_path):
 # Example usage
 if __name__ == "__main__":
     # You can call this function with an image path
-    # process_medicine_extraction("test-docs/test.jpg")
-    pass
+    print("Starting medicine extraction process...")
+    process_medicine_extraction("test-docs/test3.png")
+    print("Medicine extraction process completed.")
