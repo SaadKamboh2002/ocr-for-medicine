@@ -2,6 +2,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from openai import OpenAI
 from pdf_ocr import read_image_and_extract_text, get_file_type
+from meds import extract_medicines_from_image
 from dotenv import load_dotenv
 import os
 import tempfile
@@ -19,7 +20,7 @@ app = FastAPI(title="Medicine OCR API", description="API for extracting medicine
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.post("/extract-medicines/", response_model=Dict)
-async def extract_medicines_from_image(file: UploadFile = File(...)):
+async def extract_medicines(file: UploadFile = File(...)):
     """
     Upload an image or PDF and extract medicine names and dosages using OCR + GPT
     """
@@ -79,72 +80,71 @@ async def extract_medicines_from_image(file: UploadFile = File(...)):
         
         # Extract text using the unified function that handles both images and PDFs
         print("Starting text extraction...")
-        ocr_tokens = read_image_and_extract_text(temp_file_path)
-        print(f"Extracted {len(ocr_tokens) if ocr_tokens else 0} tokens")
+        medicines_list = extract_medicines_from_image(temp_file_path)
+        # ocr_tokens = read_image_and_extract_text(temp_file_path)
+        # print(f"Extracted {len(ocr_tokens) if ocr_tokens else 0} tokens")
         
-        if not ocr_tokens:
-            return {
-                "success": False,
-                "message": "No text detected in the file",
-                "ocr_tokens": [],
-                "medicines": [],
-                "file_type": file_type
-            }
+        # if not ocr_tokens:
+        #     return {
+        #         "success": False,
+        #         "message": "No text detected in the file",
+        #         "ocr_tokens": [],
+        #         "medicines": [],
+        #         "file_type": file_type
+        #     }
         
-        # Create prompt for GPT
-        prompt = f"""
-        List only the names of medicines from this list and perform fuzzy search if you have to: {ocr_tokens}
-        Return only the words that are actual medicines in a Python list of strings.
-        Also give their dosages if mentioned.
+        # # Create prompt for GPT
+        # prompt = f"""
+        # List only the names of medicines from this list and perform fuzzy search if you have to: {ocr_tokens}
+        # Return only the words that are actual medicines in a Python list of strings.
+        # Also give their dosages if mentioned.
         
-        Please respond in the following JSON format:
-        {{
-            "medicines": [
-                {{
-                    "name": "medicine_name",
-                    "dosage": "dosage_if_mentioned"
-                }}
-            ]
-        }}
-        """
+        # Please respond in the following JSON format:
+        # {{
+        #     "medicines": [
+        #         {{
+        #             "name": "medicine_name",
+        #             "dosage": "dosage_if_mentioned"
+        #         }}
+        #     ]
+        # }}
+        # """
         
-        # Call OpenAI API
-        print("Calling OpenAI API...")
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4.1-mini",
-                messages=[
-                    {"role": "system", "content": "You are an expert pharmacist. Always respond with valid JSON."},
-                    {"role": "user", "content": prompt}
-                ],
-                response_format={"type": "json_object"}
-            )
-            print("OpenAI API call successful")
-        except Exception as e:
-            print(f"OpenAI API error: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
+        # # Call OpenAI API
+        # print("Calling OpenAI API...")
+        # try:
+        #     response = client.chat.completions.create(
+        #         model="gpt-4.1-mini",
+        #         messages=[
+        #             {"role": "system", "content": "You are an expert pharmacist. Always respond with valid JSON."},
+        #             {"role": "user", "content": prompt}
+        #         ],
+        #         response_format={"type": "json_object"}
+        #     )
+        #     print("OpenAI API call successful")
+        # except Exception as e:
+        #     print(f"OpenAI API error: {str(e)}")
+        #     raise HTTPException(status_code=500, detail=f"OpenAI API error: {str(e)}")
         
-        # Parse GPT response
-        gpt_response_text = response.choices[0].message.content
-        print(f"GPT response received: {len(gpt_response_text)} characters")
+        # # Parse GPT response
+        # gpt_response_text = response.choices[0].message.content
+        # print(f"GPT response received: {len(gpt_response_text)} characters")
         
-        # Parse the JSON string into a Python object
-        try:
-            gpt_response_json = json.loads(gpt_response_text)
-            medicines_list = gpt_response_json.get("medicines", [])
-        except json.JSONDecodeError as e:
-            print(f"Error parsing GPT response: {e}")
-            print(f"Raw response: {gpt_response_text}")
-            # Fallback to raw response if parsing fails
-            gpt_response_json = {"error": "Failed to parse GPT response", "raw_response": gpt_response_text}
-            medicines_list = []
+        # # Parse the JSON string into a Python object
+        # try:
+        #     gpt_response_json = json.loads(gpt_response_text)
+        #     medicines_list = gpt_response_json.get("medicines", [])
+        # except json.JSONDecodeError as e:
+        #     print(f"Error parsing GPT response: {e}")
+        #     print(f"Raw response: {gpt_response_text}")
+        #     # Fallback to raw response if parsing fails
+        #     gpt_response_json = {"error": "Failed to parse GPT response", "raw_response": gpt_response_text}
+        #     medicines_list = []
         
         return {
             "success": True,
             "message": "Medicines extracted successfully",
-            "ocr_tokens": ocr_tokens,
             "medicines": medicines_list,
-            "gpt_response": gpt_response_json,
             "filename": file.filename,
             "file_type": file_type
         }

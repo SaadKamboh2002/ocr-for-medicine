@@ -4,5 +4,4 @@
 * save-to-db.py is not finalized yet
 * ocr-api.py contains two endpoints (extract-medicines and ocr-only)
 * ocr-only-api.py contains only the ocr-only endpoint which performs ocr on image or pdf
-* meds.py was the early script used to get medicine names from the extracted ocr text using gpt (its now implemented inside the extract-medicines endpoint)
-* mongodb-commands.md contains pymongo commands for learning purposes
+* meds.py is the script used to get medicine names from the extracted ocr text using gpt and also get their   dosage

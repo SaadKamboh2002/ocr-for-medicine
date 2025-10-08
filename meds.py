@@ -14,7 +14,16 @@ def extract_medicines_from_image(image_path: str):
     list only the names of medicine from this list and perform fuzzy search if you have to {ocr_tokens}
     Return only the words that are actual medicines in a Python list of strings.
     also give their dosages if mentioned and how many to consume in a day (if BID then 2 times a day, if TID then 3 times a day).
-    """
+    {{
+            "medicines": [
+                {{
+                    "name": "medicine_name",
+                    "dosage": "dosage_if_mentioned"
+                    "frequency": "how_many_times_to_consume_in_a_day_if_mentioned"
+                }}
+            ]
+        }}
+     """
 
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
