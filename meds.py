@@ -13,7 +13,7 @@ def extract_medicines_from_image(image_path: str):
     prompt = f"""
     list only the names of medicine from this list and perform fuzzy search if you have to {ocr_tokens}
     Return only the words that are actual medicines in a Python list of strings.
-    also give their dosages if mentioned. 
+    also give their dosages if mentioned and how many to consume in a day (if BID then 2 times a day, if TID then 3 times a day).
     """
 
     response = client.chat.completions.create(
@@ -30,5 +30,5 @@ def extract_medicines_from_image(image_path: str):
     return medicines_found
 
 if __name__ == "__main__":
-    meds = extract_medicines_from_image("test-docs/sindh-scanned-list.pdf")
+    meds = extract_medicines_from_image("test-docs/test.jpg")
     print("Extracted Medicines:", meds)
