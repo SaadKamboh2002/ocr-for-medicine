@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+# extract medicine names from images nby giving the raw text to llm
 def extract_medicines_from_image(image_path: str):
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
